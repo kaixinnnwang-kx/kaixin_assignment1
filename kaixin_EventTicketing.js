@@ -35,6 +35,7 @@ let events = [
         price:10
     }
 ]
+let bookings= [];
 
 
     // Retrieve upcoming events with available seats.
@@ -63,13 +64,53 @@ let events = [
             }
        return totalPrice;
     }
-        // Book tickets for an event.
-    function BookTickets() {
-        console.log("Hello function B");
+    // Book tickets for an event.
+    function BookTickets(eventId, quantity, name) {
+        if (quantity <= 0) {
+            return "Invalid ticket quantity!";
+        }
+        for(let i=0; i<events.length; i++){
+            if(events[i].eventId == eventId){
+                if(events[i].availableSeats >= quantity){
+                    events[i].availableSeats = events[i].availableSeats - quantity
+                      bookings.push({
+                      bookingId: nextBookingID,
+                      eventId: eventId,
+                      quantity:quantity,
+                      name:name
+                    });
+                     nextBookingID = nextBookingID + 1;
+                     return "Booking is successful";
+                }else{
+                    return "Booking is unsuccesful"
+                }
+            }
+
+        }
+         return "Event not found!";
     }
     // Cancel an existing booking.
-    function CancelBookings() {
-        console.log("Hello function B");
+    function CancelBookings(bookingId) {
+        let updatedBookings= [];
+        for(let i=0; i<bookings.length;i++){
+            if(bookings[i].bookingId == bookingId){
+                for(let j=0; j<events.length;j++){
+                    if (events[j].eventId == bookings[i].eventId){
+                        events[j].availableSeats = events[j].availableSeats + bookings[i].quantity
+                    }
+                }
+        for(let k=0;k<bookings.length;k++){
+            if (bookings[k].bookingId!=bookingId){
+                updatedBookings.push(bookings[k])
+            }
+            
+        }
+        bookings = updatedBookings;
+        return "Booking is cancelled succesfully"
+            }
+        }
+        return "Booking is not found"
+      
     }
     // Apply a promotional discount.
     function ApplyDiscount() {
