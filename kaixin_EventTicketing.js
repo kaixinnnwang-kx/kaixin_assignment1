@@ -3,6 +3,7 @@ let events = [
         eventId:1,
         name: "Concert A",
         date: "2026-11-01",
+        earlyBirdDeadline: "2026-10-25",
         availableSeats: 4,
         price:10
     },
@@ -10,6 +11,7 @@ let events = [
         eventId:2,
         name: "Concert B",
         date: "2026-11-23",
+        earlyBirdDeadline: "2026-11-16",
         availableSeats: 10,
         price:8
     },
@@ -17,6 +19,7 @@ let events = [
         eventId:3,
         name: "Concert C",
         date: "2026-11-20",
+        earlyBirdDeadline: "2026-11-13",
         availableSeats: 8,
         price:15
     },
@@ -24,6 +27,7 @@ let events = [
         eventId:4,
         name: "Concert D",
         date: "2026-11-16",
+        earlyBirdDeadline: "2026-11-09",
         availableSeats: 2,
         price:7
     },
@@ -31,6 +35,7 @@ let events = [
         eventId:5,
         name: "Concert E",
         date: "2026-12-09",
+        earlyBirdDeadline: "2026-12-03",
         availableSeats: 15,
         price:10
     }
@@ -113,12 +118,34 @@ let bookings= [];
       
     }
     // Apply a promotional discount.
-    function ApplyDiscount() {
-        console.log("Hello function B");
+    function ApplyDiscount(totalPrice,bookingDate,earlyBirdDeadline) {
+        if(bookingDate <=earlyBirdDeadline){
+            let discount = totalPrice*0.10
+            let finalPrice = totalPrice - discount
+            return finalPrice;
+
+        }else{
+            return totalPrice;
+        }
     }
 
     //Retrieve all bookings made by a customer
-    function RetrieveBookings() {
-        console.log("Hello function B");
+    function RetrieveBookings(name) {
+        let bookingHistory = [];
+        for(let i=0; i<bookings.length;i++){
+            if(bookings[i].name == name){
+                bookingHistory.push(bookings[i]);
+            }
+        }
+         return bookingHistory;
     }
+
+module.exports = {
+    RetrieveEvents,
+    CalculatePrice,
+    BookTickets,
+    CancelBookings,
+    ApplyDiscount,
+    RetrieveBookings
+};
 
