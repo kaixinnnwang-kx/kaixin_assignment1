@@ -141,6 +141,55 @@ let nextBookingID = 1;
          return bookingHistory;
     }
 
+    console.log(CalculatePrice([
+    { eventId: 1, quantity: 2 },
+    { eventId: 2, quantity: 3 }
+]));
+
+// Test 1: Successful booking
+console.log(BookTickets(1, 2, "Sara"));
+
+// Test 2: Check remaining seats
+console.log(events[0].availableSeats);
+
+// Test 3: Check booking records
+console.log(bookings);
+
+// Test 4: Booking exceeds available seats
+console.log(BookTickets(1, 5, "John"));
+
+// Test 5: Invalid quantity
+console.log(BookTickets(2, 0, "Mary"));
+
+// Test 6: Event does not exist
+console.log(BookTickets(99, 2, "Alex"));
+
+console.log(CancelBookings(1));
+console.log(bookings);
+console.log(events[0].availableSeats);
+
+// Test 1: Early bird discount applies
+console.log(ApplyDiscount(100, "2026-11-10", "2026-11-16"));
+
+// Test 2: Booking made on the deadline
+console.log(ApplyDiscount(100, "2026-11-16", "2026-11-16"));
+
+// Test 3: Booking made after the deadline
+console.log(ApplyDiscount(100, "2026-11-20", "2026-11-16"));
+
+// Create bookings first
+console.log(BookTickets(1, 2, "Sara"));
+console.log(BookTickets(2, 3, "Sara"));
+console.log(BookTickets(3, 1, "John"));
+
+// Retrieve Sara's bookings
+console.log(RetrieveBookings("Sara"));
+
+// Retrieve John's bookings
+console.log(RetrieveBookings("John"));
+
+// Retrieve a customer with no bookings
+console.log(RetrieveBookings("Mary"));
 module.exports = {
     RetrieveEvents,
     CalculatePrice,
