@@ -41,6 +41,7 @@ let events = [
     }
 ]
 let bookings= [];
+let nextBookingID = 1;
 
 
     // Retrieve upcoming events with available seats.
