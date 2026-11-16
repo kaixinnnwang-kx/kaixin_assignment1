@@ -1,201 +1,281 @@
 let events = [
     {
-        eventId:1,
+        eventId: 1,
         name: "Concert A",
         date: "2026-11-01",
-        earlyBirdDeadline: "2026-10-25",
         availableSeats: 4,
-        price:10
+        price: 40
     },
     {
-        eventId:2,
+        eventId: 2,
         name: "Concert B",
-        date: "2026-11-23",
-        earlyBirdDeadline: "2026-11-16",
+        date: "2026-12-23",
         availableSeats: 10,
-        price:8
+        price: 60
     },
     {
-        eventId:3,
+        eventId: 3,
         name: "Concert C",
-        date: "2026-11-20",
-        earlyBirdDeadline: "2026-11-13",
+        date: "2026-12-20",
         availableSeats: 8,
-        price:15
+        price: 55
     },
     {
-        eventId:4,
+        eventId: 4,
         name: "Concert D",
-        date: "2026-11-16",
-        earlyBirdDeadline: "2026-11-09",
+        date: "2026-12-16",
         availableSeats: 2,
-        price:7
+        price: 80
     },
     {
-        eventId:5,
+        eventId: 5,
         name: "Concert E",
-        date: "2026-12-09",
-        earlyBirdDeadline: "2026-12-03",
+        date: "2027-01-09",
         availableSeats: 15,
-        price:10
+        price: 100
     }
-]
-let bookings= [];
+];
+
+let bookings = [];
+
+let waitlist = [];
+
 let nextBookingID = 1;
 
+module.exports = {
 
-    // Retrieve upcoming events with available seats.
-    function RetrieveEvents() {
+    // Function 1: Retrieve upcoming events
+    RetrieveEvents() {
         let availableEvents = [];
-        let today = "2026-11-05";
-        for(let i = 0; i<events.length; i++){
-            if(events[i].date > today && events[i].availableSeats > 0){
+        let today = new Date();
+
+        for (let i = 0; i < events.length; i++) {
+            if (new Date(events[i].date) >= today) {
                 availableEvents.push(events[i]);
             }
         }
+
         return availableEvents;
-        
-    }
-    console.log(RetrieveEvents("2026-11-05"));
-    // Calculate total ticket price.
-    function CalculatePrice(selectedEvents) {
-        let totalPrice = 0;
-        for(let i=0; i<selectedEvents.length; i++){
-            for(let j=0; j<events.length; j++){
-                if(events[j].eventId == selectedEvents[i].eventId){
-                    let subtotal = events[j].price * selectedEvents[i].quantity
-                    totalPrice = totalPrice + subtotal;
-                }
-            }
-            }
-       return totalPrice;
-    }
-    // Book tickets for an event.
-    function BookTickets(eventId, quantity, name) {
+    },
+
+
+    // Function 2: Calculate ticket price and apply bulk discount
+    ApplyDiscount(eventId, quantity) {
+
         if (quantity <= 0) {
             return "Invalid ticket quantity!";
         }
-        for(let i=0; i<events.length; i++){
-            if(events[i].eventId == eventId){
-                if(events[i].availableSeats >= quantity){
-                    events[i].availableSeats = events[i].availableSeats - quantity
-                      bookings.push({
-                      bookingId: nextBookingID,
-                      eventId: eventId,
-                      quantity:quantity,
-                      name:name
-                    });
-                     nextBookingID = nextBookingID + 1;
-                     return "Booking is successful";
-                }else{
-                    return "Booking is unsuccesful"
+
+        for (let i = 0; i < events.length; i++) {
+            if (events[i].eventId == eventId) {
+
+                let totalPrice = events[i].price * quantity;
+
+                if (quantity >= 3) {
+                    let discount = totalPrice * 0.10;
+                    return totalPrice - discount;
+                } else {
+                    return totalPrice;
                 }
             }
-
         }
-         return "Event not found!";
-    }
-    // Cancel an existing booking.
-    function CancelBookings(bookingId) {
-        let updatedBookings= [];
-        for(let i=0; i<bookings.length;i++){
-            if(bookings[i].bookingId == bookingId){
-                for(let j=0; j<events.length;j++){
-                    if (events[j].eventId == bookings[i].eventId){
-                        events[j].availableSeats = events[j].availableSeats + bookings[i].quantity
+
+        return "Event not found!";
+    },
+
+
+    // Function 3: Book tickets
+    BookTickets(eventId, quantity, name) {
+
+        if (quantity <= 0) {
+            return "Invalid ticket quantity!";
+        }
+
+        if (name == "") {
+            return "Customer name cannot be empty!";
+        }
+
+        let today = new Date();
+
+        for (let i = 0; i < events.length; i++) {
+            if (events[i].eventId == eventId) {
+
+                if (new Date(events[i].date) < today) {
+                    return "Booking unsuccessful! Event has ended.";
+                }
+
+                if (events[i].availableSeats >= quantity) {
+
+                    let finalPrice = this.ApplyDiscount(eventId, quantity);
+
+                    events[i].availableSeats -= quantity;
+
+                    bookings.push({
+                        bookingId: nextBookingID,
+                        eventId: eventId,
+                        eventName: events[i].name,
+                        quantity: quantity,
+                        name: name,
+                        totalPrice: finalPrice
+                    });
+
+                    let bookingNumber = nextBookingID;
+                    nextBookingID++;
+
+                    return "Booking #" + bookingNumber +
+                        " confirmed for " + name +
+                        "! " + quantity + " ticket(s) for " +
+                        events[i].name +
+                        ". Total: $" + finalPrice.toFixed(2);
+
+                } else {
+                    return "Booking unsuccessful! Not enough seats available.";
+                }
+            }
+        }
+
+        return "Event not found!";
+    },
+
+
+    // Function 4: Update an existing booking
+    UpdateBooking(bookingId, newQuantity) {
+
+        if (newQuantity <= 0) {
+            return "Invalid ticket quantity!";
+        }
+
+        for (let i = 0; i < bookings.length; i++) {
+            if (bookings[i].bookingId == bookingId) {
+
+                for (let j = 0; j < events.length; j++) {
+                    if (events[j].eventId == bookings[i].eventId) {
+
+                        let difference = newQuantity - bookings[i].quantity;
+
+                        if (difference <= events[j].availableSeats) {
+
+                            events[j].availableSeats -= difference;
+
+                            bookings[i].quantity = newQuantity;
+
+                            bookings[i].totalPrice =
+                                this.ApplyDiscount(events[j].eventId, newQuantity);
+
+                            return "Booking updated successfully! " +
+                                "New quantity: " + newQuantity +
+                                ". New total price: $" +
+                                bookings[i].totalPrice.toFixed(2);
+
+                        } else {
+                            return "Not enough tickets available!";
+                        }
                     }
                 }
-        for(let k=0;k<bookings.length;k++){
-            if (bookings[k].bookingId!=bookingId){
-                updatedBookings.push(bookings[k])
-            }
-            
-        }
-        bookings = updatedBookings;
-        return "Booking is cancelled succesfully"
             }
         }
-        return "Booking is not found"
-      
-    }
-    // Apply a promotional discount.
-    function ApplyDiscount(totalPrice,bookingDate,earlyBirdDeadline) {
-        if(bookingDate <=earlyBirdDeadline){
-            let discount = totalPrice*0.10
-            let finalPrice = totalPrice - discount
-            return finalPrice;
 
-        }else{
-            return totalPrice;
+        return "Booking not found!";
+    },
+
+
+    // Function 5: Cancel a booking
+    CancelBookings(bookingId) {
+
+        let updatedBookings = [];
+
+        for (let i = 0; i < bookings.length; i++) {
+            if (bookings[i].bookingId == bookingId) {
+
+                let eventId = bookings[i].eventId;
+                let cancelledQuantity = bookings[i].quantity;
+                let eventName = bookings[i].eventName;
+
+                // Restore available seats
+                for (let j = 0; j < events.length; j++) {
+                    if (events[j].eventId == eventId) {
+                        events[j].availableSeats += cancelledQuantity;
+                    }
+                }
+
+                // Remove cancelled booking
+                for (let k = 0; k < bookings.length; k++) {
+                    if (bookings[k].bookingId != bookingId) {
+                        updatedBookings.push(bookings[k]);
+                    }
+                }
+
+                bookings = updatedBookings;
+
+                return "Booking cancelled successfully! " +
+                    cancelledQuantity + " seat(s) restored for " +
+                    eventName;
+            }
         }
-    }
 
-    //Retrieve all bookings made by a customer
-    function RetrieveBookings(name) {
+        return "Booking not found!";
+    },
+
+
+    // Function 6: Retrieve customer booking history
+    RetrieveBookings(name) {
+
         let bookingHistory = [];
-        for(let i=0; i<bookings.length;i++){
-            if(bookings[i].name == name){
+
+        for (let i = 0; i < bookings.length; i++) {
+            if (bookings[i].name == name) {
                 bookingHistory.push(bookings[i]);
             }
         }
-         return bookingHistory;
+
+        return bookingHistory;
+    },
+
+
+    // Function 7: Join waiting list for sold-out events
+    JoinWaitlist(eventId, name) {
+
+        if (name == "") {
+            return "Customer name cannot be empty!";
+        }
+
+        let today = new Date();
+
+        for (let i = 0; i < events.length; i++) {
+            if (events[i].eventId == eventId) {
+
+                if (new Date(events[i].date) < today) {
+                    return "Cannot join waiting list for past events!";
+                }
+
+                if (events[i].availableSeats > 0) {
+                    return "Tickets are still available!";
+                }
+
+                // Prevent duplicate waiting list entries
+                for (let j = 0; j < waitlist.length; j++) {
+                    if (waitlist[j].eventId == eventId &&
+                        waitlist[j].name == name) {
+
+                        return "Customer is already on the waiting list!";
+                    }
+                }
+
+                waitlist.push({
+                    eventId: eventId,
+                    name: name
+                });
+
+                return name + " successfully joined the waiting list for " +
+                    events[i].name + "!";
+            }
+        }
+
+        return "Event not found!";
     }
 
-    console.log(CalculatePrice([
-    { eventId: 1, quantity: 2 },
-    { eventId: 2, quantity: 3 }
-]));
-
-// Test 1: Successful booking
-console.log(BookTickets(1, 2, "Sara"));
-
-// Test 2: Check remaining seats
-console.log(events[0].availableSeats);
-
-// Test 3: Check booking records
-console.log(bookings);
-
-// Test 4: Booking exceeds available seats
-console.log(BookTickets(1, 5, "John"));
-
-// Test 5: Invalid quantity
-console.log(BookTickets(2, 0, "Mary"));
-
-// Test 6: Event does not exist
-console.log(BookTickets(99, 2, "Alex"));
-
-console.log(CancelBookings(1));
-console.log(bookings);
-console.log(events[0].availableSeats);
-
-// Test 1: Early bird discount applies
-console.log(ApplyDiscount(100, "2026-11-10", "2026-11-16"));
-
-// Test 2: Booking made on the deadline
-console.log(ApplyDiscount(100, "2026-11-16", "2026-11-16"));
-
-// Test 3: Booking made after the deadline
-console.log(ApplyDiscount(100, "2026-11-20", "2026-11-16"));
-
-// Create bookings first
-console.log(BookTickets(1, 2, "Sara"));
-console.log(BookTickets(2, 3, "Sara"));
-console.log(BookTickets(3, 1, "John"));
-
-// Retrieve Sara's bookings
-console.log(RetrieveBookings("Sara"));
-
-// Retrieve John's bookings
-console.log(RetrieveBookings("John"));
-
-// Retrieve a customer with no bookings
-console.log(RetrieveBookings("Mary"));
-module.exports = {
-    RetrieveEvents,
-    CalculatePrice,
-    BookTickets,
-    CancelBookings,
-    ApplyDiscount,
-    RetrieveBookings
 };
+
+
+
 
