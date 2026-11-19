@@ -199,8 +199,27 @@ let ticketbook = {
         return "Booking not found!";
     },
 
+     // Function 5: Retrieve customer bookings
+    RetrieveBookings(name) {
 
-    // Function 5: Cancel booking
+        if (name == "") {
+            return "Customer name cannot be empty!";
+        }
+
+        let bookingHistory = [];
+
+        for (let i = 0; i < bookings.length; i++) {
+
+            if (bookings[i].name == name) {
+                bookingHistory.push(bookings[i]);
+            }
+        }
+
+        return bookingHistory;
+    },
+
+
+    // Function 6: Cancel booking
     CancelBookings(bookingId) {
 
         if (bookingId <= 0) {
@@ -248,25 +267,6 @@ let ticketbook = {
         return "Booking not found!";
     },
 
-
-    // Function 6: Retrieve customer bookings
-    RetrieveBookings(name) {
-
-        if (name == "") {
-            return "Customer name cannot be empty!";
-        }
-
-        let bookingHistory = [];
-
-        for (let i = 0; i < bookings.length; i++) {
-
-            if (bookings[i].name == name) {
-                bookingHistory.push(bookings[i]);
-            }
-        }
-
-        return bookingHistory;
-    },
 
 
     // Function 7: Join waiting list
