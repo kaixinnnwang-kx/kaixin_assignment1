@@ -49,17 +49,7 @@ newQuantity – Updated number of tickets.
 
 Return: A confirmation containing the updated quantity and price, or an error message.
 
-Function 5: CancelBookings(bookingId)
-
-Description: Cancels an existing booking and restores the reserved seats to the event. Bookings for past events cannot be cancelled.
-
-Parameters:
-
-bookingId – ID of the booking to cancel.
-
-Return: A cancellation confirmation or an error message.
-
-Function 6: RetrieveBookings(name)
+Function 5: RetrieveBookings(name)
 
 Description: Retrieves all active bookings associated with a customer's name.
 
@@ -68,6 +58,16 @@ Parameters:
 name – Customer's name.
 
 Return: An array of matching booking records. Returns an empty array if no bookings are found.
+
+Function 6: CancelBookings(bookingId)
+
+Description: Cancels an existing booking and restores the reserved seats to the event. Bookings for past events cannot be cancelled.
+
+Parameters:
+
+bookingId – ID of the booking to cancel.
+
+Return: A cancellation confirmation or an error message.
 
 Function 7: JoinWaitlist(eventId, name)
 
